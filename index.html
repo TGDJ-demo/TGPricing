@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TestGrid · Pricing Estimator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --tg-navy: #2c3260;
+      --tg-teal: #52bfa3;
+      --tg-purple: #685da7;
+      --tg-bg: #f4f6fa;
+      --tg-card-bg: #ffffff;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--tg-bg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+      color: var(--tg-navy);
+      position: relative;
+    }
+    
+    .watermark-bg {
+      position: absolute;
+      top: 15%;
+      left: 5%;
+      right: 5%;
+      bottom: 15%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.04;
+      user-select: none;
+    }
+    .watermark-bg h1 {
+      font-size: 12rem;
+      font-weight: 800;
+      letter-spacing: -4px;
+      color: var(--tg-navy);
+      margin: 0;
+    }
+    .watermark-bg p {
+      font-size: 2rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 10px;
+      color: var(--tg-teal);
+    }
+
+    .pricing-card {
+      max-width: 1200px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(8px);
+      border-radius: 24px;
+      box-shadow: 0 20px 40px -15px rgba(44,50,96,0.08);
+      padding: 2.5rem;
+      position: relative;
+      z-index: 1;
+      border: 1px solid #e2e8f0;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #edf2f7;
+      padding-bottom: 1.2rem;
+    }
+    .logo-area { display:flex; align-items:center; gap:0.5rem; }
+    .logo-tg-icon {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--tg-teal);
+      position: relative;
+      margin-right: 0.2rem;
+    }
+    .logo-tg-icon span { color: var(--tg-purple); }
+    .logo-text { font-size: 2rem; font-weight: 700; letter-spacing: -1.5px; color: var(--tg-navy); }
+    .logo-sub { font-size:0.85rem; font-weight:600; color:#718096; border-left: 2px solid #e2e8f0; padding-left: 0.75rem; margin-left:0.2rem; }
+
+    .customer-block {
+      background:#f8fafc; border-radius:16px; padding:1.2rem;
+      border:1px solid #edf2f7; margin-bottom:2rem;
+      display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
+      gap:1rem;
+    }
+    .customer-block .field { display:flex; flex-direction:column; gap:0.3rem; }
+    .customer-block label {
+      font-size:0.65rem; font-weight:700; color:var(--tg-navy);
+      letter-spacing:0.5px; text-transform:uppercase; opacity: 0.8;
+    }
+    .customer-block input {
+      background:white; border:1px solid #cbd5e1; border-radius:10px;
+      padding:0.5rem 0.8rem; font-size:0.85rem; font-family:'Inter',sans-serif;
+      width:100%; color: var(--tg-navy); font-weight: 500;
+    }
+    .customer-block input:focus { outline:2px solid var(--tg-teal); border-color:transparent; }
+    .customer-block input:disabled { background:#f1f5f9; color:var(--tg-navy); opacity:0.8; cursor:default; border-color:#e2e8f0; }
+
+    .plans-grid {
+      display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.5rem;
+      margin-bottom:2rem;
+    }
+    .plan-box {
+      background:#ffffff; border-radius:20px; padding:1.2rem;
+      border:1px solid #edf2f7;
+      display:flex; flex-direction:column;
+      box-shadow: 0 4px 10px rgba(44,50,96,0.01);
+    }
+    .plan-title {
+      font-size:1.05rem; font-weight:700; display:flex; align-items:center;
+      gap:0.5rem; margin-bottom:1.2rem; color: var(--tg-navy);
+    }
+    .plan-title i { color:var(--tg-teal); }
+    .plan-title .badge {
+      background:#e6fffa; border-radius:6px; padding:0.15rem 0.4rem;
+      font-size:0.6rem; font-weight:700; text-transform:uppercase; color: var(--tg-teal);
+      border: 1px solid #b2f5ea;
+    }
+    
+    .tiers-list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+    
+    .tier-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      background:#f8fafc; border-radius:12px; padding:1rem;
+      margin-bottom:0.8rem; border:1px solid #edf2f7;
+      position: relative;
+    }
+    .tier-header-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .tier-label { font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:0.3rem; color: var(--tg-navy); width: 80%; }
+    .tier-label i { color:var(--tg-purple); font-size:0.75rem; }
+    .tier-label-editable {
+      background: transparent; border: none; font-weight: 700; font-size: 0.85rem; color: var(--tg-navy); width: 100%;
+    }
+    .tier-label-editable:focus { outline: none; border-bottom: 1px dashed var(--tg-teal); }
+    
+    .tier-controls-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .license-row-inputs {
+      display: grid;
+      grid-template-columns: 1fr 70px;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .cost-input-wrapper { 
+      display: flex; 
+      align-items: center; 
+      background: white; 
+      border-radius: 8px; 
+      padding: 0.3rem 0.6rem; 
+      border: 1px solid #cbd5e1; 
+    }
+    .cost-input-wrapper span { font-size: 0.8rem; font-weight: 600; color: #64748b; margin-right: 2px; }
+    .cost-editable { width: 100%; border: none; background: transparent; font-weight: 700; font-size: 0.85rem; color: var(--tg-navy); font-family: 'Inter', sans-serif; }
+    .cost-editable:focus { outline: none; }
+    .cost-input-wrapper small { font-weight:500; font-size:0.65rem; color:#64748b; margin-left: 4px; white-space: nowrap; }
+
+    .qty-control input {
+      width: 100%; padding:0.3rem; border:1px solid #cbd5e1;
+      border-radius:8px; font-weight:700; text-align:center;
+      font-family:'Inter',sans-serif; font-size:0.85rem; color: var(--tg-navy);
+      background: white;
+    }
+    .qty-control input:focus { outline:2px solid var(--tg-teal); border-color:transparent; }
+    .qty-control input[type=number]::-webkit-inner-spin-button,
+    .qty-control input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .qty-control input[type=number] { -moz-appearance: textfield; }
+
+    .tier-note-field {
+      width: 100%; border: none; background: transparent;
+      border-top: 1px dashed #e2e8f0; padding-top: 0.4rem;
+      font-size: 0.7rem; font-weight: 500; color: #64748b;
+      font-family: 'Inter', sans-serif;
+    }
+    .tier-note-field:focus { outline: none; color: var(--tg-navy); }
+
+    .btn-delete-tier {
+      background: transparent; border: none; color: #94a3b8;
+      cursor: pointer; font-size: 0.75rem; transition: color 0.15s;
+    }
+    .btn-delete-tier:hover { color: #ef4444; }
+
+    .btn-add-tier {
+      background: #f8fafc; color: #475569; border: 1px dashed #cbd5e1;
+      padding: 0.55rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      gap: 0.3rem; width: 100%; margin-top: auto; transition: all 0.15s;
+    }
+    .btn-add-tier:hover { background: #f1f5f9; color: #0f172a; border-color: #94a3b8; }
+
+    .addon-list { list-style:none; padding-left:0; display:flex; flex-direction:column; gap:0.6rem; }
+    .addon-list li {
+      background:#ffffff; padding:0.6rem 0.8rem; border-radius:12px;
+      font-size:0.8rem; font-weight:600; color:var(--tg-navy);
+      border:1px solid #edf2f7; display:grid; grid-template-columns: auto 1fr auto;
+      align-items:center; gap: 0.5rem;
+    }
+    .addon-list li.selected { background: #f0fdf4; border-color: #bbf7d0; }
+    .addon-info { display: flex; align-items: center; gap: 0.5rem; }
+    .addon-info i { font-size:0.85rem; color: var(--tg-purple); width: 14px; text-align: center; }
+    
+    .btn-addon-action {
+      background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569;
+      width: 24px; height: 24px; border-radius: 6px; font-size: 0.8rem;
+      font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .btn-addon-action:hover { background: #e2e8f0; color: #0f172a; }
+    .addon-list li.selected .btn-addon-action { background: #ef4444; border-color: #ef4444; color: white; }
+
+    .addon-cost-wrapper {
+      display: flex; align-items: center; background: white;
+      border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.2rem 0.4rem; max-width: 80px;
+    }
+    .addon-cost-wrapper span { font-size: 0.75rem; color: #64748b; font-weight: 600; }
+    .addon-cost-input {
+      width: 100%; border: none; background: transparent; font-weight: 700;
+      font-size: 0.8rem; color: var(--tg-navy); text-align: right; font-family: 'Inter', sans-serif;
+    }
+    .addon-cost-input:focus { outline: none; }
+    .addon-cost-input::-webkit-inner-spin-button, 
+    .addon-cost-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .addon-cost-input { -moz-appearance: textfield; }
+
+    .line-item-block {
+      background:#f8fafc; border-radius:16px; padding:1.2rem 1.5rem;
+      border:1px solid #edf2f7; margin:1.5rem 0;
+    }
+    .line-header {
+      display:grid; grid-template-columns: 4fr 1fr 1.5fr;
+      font-weight:700; font-size:0.7rem; color:var(--tg-navy); opacity: 0.7; padding-bottom:0.5rem;
+      border-bottom:1px solid #e2e8f0; letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .line-header span:nth-child(2), .line-header span:nth-child(3) { text-align: right; }
+    
+    #lineItemsContainer { margin-top: 0.25rem; }
+    .line-row {
+      display:grid; grid-template-columns: 4fr 1fr 1.5fr; padding:0.6rem 0;
+      font-size:0.85rem; border-bottom:1px dashed #e2e8f0; color: var(--tg-navy); align-items: center;
+    }
+    .line-row span:nth-child(2), .line-row span:nth-child(3) { text-align: right; font-weight: 600; }
+    .line-row:last-child { border-bottom:none; }
+    .line-row .item { display:flex; flex-direction:column; gap:0.15rem; text-align: left; }
+    .line-row .item-title { display:flex; gap:0.4rem; align-items:center; font-weight: 500; }
+    .line-row .item-title i { color:var(--tg-teal); font-size:0.75rem; width:1rem; }
+    .line-row .item-note { font-size: 0.7rem; color: #64748b; padding-left: 1.4rem; font-style: italic; }
+
+    .line-summary {
+      display:flex; justify-content:space-between; flex-wrap:wrap;
+      gap:0.5rem 1rem; margin-top:0.8rem; padding-top:0.8rem; border-top:2px solid #cbd5e1; font-weight:600; font-size:0.9rem;
+    }
+    .line-summary .subtotal { font-weight:500; color:#475569; }
+    .line-summary .discount-line { color:var(--tg-purple); }
+    .line-summary .total-line { font-size:1.05rem; font-weight: 700; color: var(--tg-navy); }
+
+    .savings-green {
+      color:#0f7b3a; background:#dcfce7; padding:0.2rem 0.8rem;
+      border-radius:40px; font-weight:700; display:inline-flex; align-items:center; gap:0.3rem; border:1px solid #bbf7d0; font-size:0.8rem;
+    }
+
+    .total-area {
+      background:#edf2f7; border-radius:16px; padding:1rem 1.5rem;
+      display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; border:1px solid #cbd5e1; margin-bottom: 1.5rem;
+    }
+    .total-left { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .total-label { font-weight:700; font-size:1rem; color: var(--tg-navy); }
+    .total-price { font-size:1.6rem; font-weight:700; color:var(--tg-navy); }
+    .total-price small { font-size:0.75rem; font-weight:600; color:#4a5568; }
+
+    .discount-editor {
+      display:flex; align-items:center; gap:0.8rem; background:#f8fafc; border-radius:12px; padding:0.6rem 1.2rem;
+      border:1px solid #edf2f7; margin-bottom: 1.5rem; flex-wrap:wrap;
+    }
+    .discount-editor label { font-weight:600; font-size:0.8rem; color:var(--tg-navy); display:flex; align-items:center; gap:0.4rem; }
+    .discount-editor label i { color:var(--tg-teal); }
+    .discount-editor input[type="number"] {
+      width:65px; padding:0.3rem; border:1px solid #cbd5e1; border-radius:8px; font-weight:700; text-align:center; font-family:'Inter',sans-serif; font-size:0.85rem;
+    }
+    .discount-editor input[type="number"]:focus { outline:2px solid var(--tg-teal); border-color:transparent; }
+    .discount-editor .toggle-group { display:flex; align-items:center; gap:0.2rem; background:white; border-radius:8px; padding:0.2rem; border:1px solid #cbd5e1; }
+    .discount-editor .toggle-group button {
+      background:transparent; border:none; padding:0.3rem 0.8rem; border-radius:6px; font-weight:600; font-size:0.75rem; cursor:pointer; font-family:'Inter',sans-serif; color:#475569; transition:0.15s;
+    }
+    .discount-editor .toggle-group button.active { background:var(--tg-navy); color:white; }
+
+    .action-row { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; }
+    .disclaimer-textarea {
+      width: 65%; min-height: 105px; font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #4a5568; background: #f8fafc;
+      padding: 0.8rem 1.2rem; border-radius: 12px; border: 1px solid #cbd5e1; line-height: 1.6; resize: vertical;
+    }
+    .disclaimer-textarea:focus { outline: none; border-color: var(--tg-teal); }
+
+    .btn-print {
+      background:var(--tg-navy); color:white; border:none; padding:0.75rem 2rem; border-radius:10px; font-weight:600; font-size:0.85rem;
+      display:inline-flex; align-items:center; gap:0.5rem; cursor:pointer; transition:0.2s; font-family:'Inter',sans-serif; box-shadow: 0 4px 12px rgba(44,50,96,0.15);
+    }
+    .btn-print:hover { background:#1f2444; transform:translateY(-1px); }
+
+    @media (max-width:900px) {
+      .plans-grid { grid-template-columns:1fr; }
+      .disclaimer-textarea { width: 100%; }
+    }
+    @media (max-width:650px) {
+      .pricing-card { padding:1.2rem; border-radius: 16px; }
+      .customer-block { grid-template-columns:1fr; }
+      .total-area { flex-direction:column; align-items:stretch; gap:1rem; }
+      .action-row { flex-direction:column; align-items:stretch; }
+      .btn-print { justify-content: center; }
+    }
+
+    /* Print Specific Overrides */
+    @media print {
+      body { background: white; color: #000; padding: 0; }
+      .watermark-bg { display: flex !important; opacity: 0.05 !important; }
+      .pricing-card { box-shadow: none; padding: 0; border: none; max-width: 100%; }
+      .discount-editor, .btn-print, .btn-add-tier, .btn-addon-action, .btn-delete-tier { display: none !important; }
+      .customer-block, .tier-row, .plan-box, .line-item-block, .total-area { background: transparent !important; border: 1px solid #cbd5e1 !important; border-radius: 12px !important; }
+      input, select, textarea { border: none !important; background: transparent !important; padding: 0 !important; outline: none !important; appearance: none !important; resize: none !important; }
+      .cost-input-wrapper { border: none !important; background: transparent !important; padding: 0 !important; }
+      .addon-cost-wrapper { border: none !important; background: transparent !important; padding: 0 !important; }
+      .addon-list { display: flex !important; }
+      .addon-list li { border: 1px solid #cbd5e1 !important; background: transparent !important; grid-template-columns: 1fr auto !important; }
+      .addon-list li .addon-cost-input { text-align: right !important; width: auto !important; }
+      .tier-note-field::placeholder { color: transparent !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="watermark-bg">
+  <h1>TestGrid</h1>
+  <p>Confidential Estimate</p>
+</div>
+
+<div class="pricing-card" id="pricingCard">
+
+  <div class="header">
+    <div class="logo-area">
+      <span class="logo-tg-icon">Test<span>Grid</span></span>
+      <span class="logo-sub">Pricing Estimator</span>
+    </div>
+  </div>
+
+  <div class="customer-block">
+    <div class="field"><label><i class="fas fa-user"></i> Customer name</label><input type="text" id="custName" placeholder="e.g. Company name" value=""></div>
+    <div class="field"><label><i class="fas fa-building"></i> Company</label><input type="text" id="companyName" value="TestGrid Labs Inc" disabled></div>
+    <div class="field"><label><i class="fas fa-user-check"></i> Prepared by</label><input type="text" id="preparedBy" placeholder="Your name" value=""></div>
+    <div class="field"><label><i class="fas fa-calendar-day"></i> Date</label><input type="date" id="validDate" value="2026-07-02"></div>
+    <div class="field"><label><i class="fas fa-clock"></i> Validity</label><input type="text" id="validity" placeholder="e.g. 30 days" value="30 days"></div>
+  </div>
+
+  <div class="plans-grid">
+    <!-- Hosted Plan -->
+    <div class="plan-box" id="hostedPlanBox">
+      <div class="plan-title"><i class="fas fa-cloud"></i> Hosted <span class="badge">Private cloud</span></div>
+      <div class="tiers-list-container" id="hostedTiersContainer">
+        <div class="tier-row" data-prefix="Hosted">
+          <div class="tier-header-meta">
+            <span class="tier-label"><i class="fas fa-circle-check"></i> <input type="text" value="Tier 1" class="tier-label-editable"></span>
+            <button class="btn-delete-tier" title="Delete Tier"><i class="fas fa-trash"></i></button>
+          </div>
+          <div class="tier-controls-group">
+            <div class="license-row-inputs">
+              <div class="cost-input-wrapper">
+                <span>$</span><input type="number" min="0" value="3000" class="cost-editable" data-cost-input-device><small>device lic</small>
+              </div>
+              <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="0" data-qty-device></div>
+            </div>
+            <div class="license-row-inputs">
+              <div class="cost-input-wrapper">
+                <span>$</span><input type="number" min="0" value="1500" class="cost-editable" data-cost-input-browser><small>browser lic</small>
+              </div>
+              <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="0" data-qty-browser></div>
+            </div>
+          </div>
+          <input type="text" placeholder="Add specific context or note..." class="tier-note-field" data-tier-note>
+        </div>
+      </div>
+      <button class="btn-add-tier" id="addHostedTierBtn"><i class="fas fa-plus"></i> Add Custom Tier</button>
+    </div>
+
+    <!-- OnPrem Plan -->
+    <div class="plan-box" id="onPremPlanBox">
+      <div class="plan-title"><i class="fas fa-server"></i> On‑Premise <span class="badge">self‑hosted</span></div>
+      <div class="tiers-list-container" id="onPremTiersContainer">
+        <div class="tier-row" data-prefix="OnPrem">
+          <div class="tier-header-meta">
+            <span class="tier-label"><i class="fas fa-circle-check"></i> <input type="text" value="Tier 1" class="tier-label-editable"></span>
+            <button class="btn-delete-tier" title="Delete Tier"><i class="fas fa-trash"></i></button>
+          </div>
+          <div class="tier-controls-group">
+            <div class="license-row-inputs">
+              <div class="cost-input-wrapper">
+                <span>$</span><input type="number" min="0" value="2750" class="cost-editable" data-cost-input-device><small>device lic</small>
+              </div>
+              <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="0" data-qty-device></div>
+            </div>
+            <div class="license-row-inputs">
+              <div class="cost-input-wrapper">
+                <span>$</span><input type="number" min="0" value="1250" class="cost-editable" data-cost-input-browser><small>browser lic</small>
+              </div>
+              <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="0" data-qty-browser></div>
+            </div>
+          </div>
+          <input type="text" placeholder="Add specific context or note..." class="tier-note-field" data-tier-note>
+        </div>
+      </div>
+      <button class="btn-add-tier" id="addOnPremTierBtn"><i class="fas fa-plus"></i> Add Custom Tier</button>
+    </div>
+
+    <!-- Add-Ons -->
+    <div class="plan-box">
+      <div class="plan-title"><i class="fas fa-puzzle-piece"></i> Add‑Ons <span class="badge">Optional</span></div>
+      <ul class="addon-list" id="addonList">
+        <li data-addon-row data-addon-label="CoTester + AI">
+          <button class="btn-addon-action" data-addon-btn>+</button>
+          <span class="addon-info"><i class="fas fa-robot"></i> CoTester + AI</span>
+          <div class="addon-cost-wrapper">
+            <span>$</span><input type="number" min="0" value="0" class="addon-cost-input" data-addon-cost placeholder="0">
+          </div>
+        </li>
+        <li data-addon-row data-addon-label="Scriptless R&P">
+          <button class="btn-addon-action" data-addon-btn>+</button>
+          <span class="addon-info"><i class="fas fa-play"></i> Scriptless R&P</span>
+          <div class="addon-cost-wrapper">
+            <span>$</span><input type="number" min="0" value="0" class="addon-cost-input" data-addon-cost placeholder="0">
+          </div>
+        </li>
+        <li data-addon-row data-addon-label="Visual + API">
+          <button class="btn-addon-action" data-addon-btn>+</button>
+          <span class="addon-info"><i class="fas fa-eye"></i> Visual + API</span>
+          <div class="addon-cost-wrapper">
+            <span>$</span><input type="number" min="0" value="0" class="addon-cost-input" data-addon-cost placeholder="0">
+          </div>
+        </li>
+        <li data-addon-row data-addon-label="Load Testing">
+          <button class="btn-addon-action" data-addon-btn>+</button>
+          <span class="addon-info"><i class="fas fa-chart-line"></i> Load Testing</span>
+          <div class="addon-cost-wrapper">
+            <span>$</span><input type="number" min="0" value="0" class="addon-cost-input" data-addon-cost placeholder="0">
+          </div>
+        </li>
+        <li data-addon-row data-addon-label="Accessibility">
+          <button class="btn-addon-action" data-addon-btn>+</button>
+          <span class="addon-info"><i class="fas fa-universal-access"></i> Accessibility</span>
+          <div class="addon-cost-wrapper">
+            <span>$</span><input type="number" min="0" value="0" class="addon-cost-input" data-addon-cost placeholder="0">
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="line-item-block" id="lineItemBlock">
+    <div class="line-header"><span>Item</span><span>Qty</span><span>Subtotal</span></div>
+    <div id="lineItemsContainer"></div>
+    <div class="line-summary">
+      <span class="subtotal">Subtotal: <span id="subtotalDisplay">$0</span></span>
+      <span class="discount-line">Discount: <span id="discountDisplay">-$0</span></span>
+      <span class="total-line">Total: <span id="lineTotalDisplay">$0</span></span>
+    </div>
+  </div>
+
+  <div class="discount-editor">
+    <label><i class="fas fa-percent"></i> Discount rate</label>
+    <input type="number" id="discountInput" min="0" max="100" value="25" step="0.5">
+    <span>%</span>
+    <div class="toggle-group">
+      <button id="annualToggle" class="active">Annual</button>
+      <button id="monthlyToggle">Monthly</button>
+    </div>
+  </div>
+
+  <div class="total-area" id="totalArea">
+    <div class="total-left">
+      <span class="total-label"><i class="fas fa-calculator"></i> Total</span>
+      <span class="total-price" id="totalPrice">$0 <small>USD</small></span>
+    </div>
+    <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+      <span id="totalDiscountDisplay" style="font-weight:600; color:var(--tg-navy); background:#ffffffcc; padding:0.1rem 0.8rem; border-radius:40px; border:1px solid #cbd5e1; font-size:0.75rem;"><i class="fas fa-percent"></i> Discount $0</span>
+      <span class="savings-green" id="savingsBadge"><i class="fas fa-piggy-bank"></i> Save $0</span>
+    </div>
+  </div>
+
+  <div class="action-row">
+    <textarea class="disclaimer-textarea" id="disclaimerInput">+ Premium support plan and a dedicated account manager are directly included with your subscription tier configurations.
+
+PRIVATE & CONFIDENTIAL NOTICE
+This pricing estimate contains proprietary information intended solely for the recipient. 
+
+</textarea>
+    <button class="btn-print" id="printBtn"><i class="fas fa-print"></i> Print Estimate</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const discountInput = document.getElementById('discountInput');
+    const annualToggle = document.getElementById('annualToggle');
+    const monthlyToggle = document.getElementById('monthlyToggle');
+    
+    const totalPriceSpan = document.getElementById('totalPrice');
+    const totalDiscountDisplay = document.getElementById('totalDiscountDisplay');
+    const savingsBadge = document.getElementById('savingsBadge');
+    const subtotalDisplay = document.getElementById('subtotalDisplay');
+    const discountDisplay = document.getElementById('discountDisplay');
+    const lineTotalDisplay = document.getElementById('lineTotalDisplay');
+    const lineItemsContainer = document.getElementById('lineItemsContainer');
+
+    let isMonthly = false;
+
+    function formatCurrency(amount) {
+      return '$' + Number(amount).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    function getDiscountRate() {
+      if (isMonthly) return 0;
+      let val = parseFloat(discountInput.value);
+      return (isNaN(val) || val < 0) ? 0 : (val > 100 ? 1 : val / 100);
+    }
+
+    function computeTotals() {
+      const discountRate = getDiscountRate();
+      let totalDiscounted = 0, totalOriginal = 0;
+      const lineItems = [];
+
+      // Process Tiers
+      document.querySelectorAll('.tier-row').forEach(row => {
+        const prefix = row.getAttribute('data-prefix') || '';
+        const labelInput = row.querySelector('.tier-label-editable');
+        const tierName = labelInput ? labelInput.value : 'Tier option';
+        const noteText = (row.querySelector('[data-tier-note]')?.value || '').trim();
+
+        // Device licenses
+        const qtyDevice = parseInt(row.querySelector('[data-qty-device]').value, 10) || 0;
+        if (qtyDevice > 0) {
+          const origDevice = parseFloat(row.querySelector('[data-cost-input-device]').value) || 0;
+          const discDevice = origDevice * (1 - discountRate);
+          totalOriginal += origDevice * qtyDevice;
+          totalDiscounted += discDevice * qtyDevice;
+          lineItems.push({
+            label: `${prefix} · ${tierName} (Device License)`,
+            note: noteText, qty: qtyDevice, subtotal: discDevice * qtyDevice, originalSubtotal: origDevice * qtyDevice, displayCost: formatCurrency(discDevice * qtyDevice)
+          });
+        }
+
+        // Browser licenses
+        const qtyBrowser = parseInt(row.querySelector('[data-qty-browser]').value, 10) || 0;
+        if (qtyBrowser > 0) {
+          const origBrowser = parseFloat(row.querySelector('[data-cost-input-browser]').value) || 0;
+          const discBrowser = origBrowser * (1 - discountRate);
+          totalOriginal += origBrowser * qtyBrowser;
+          totalDiscounted += discBrowser * qtyBrowser;
+          lineItems.push({
+            label: `${prefix} · ${tierName} (Browser License)`,
+            note: noteText, qty: qtyBrowser, subtotal: discBrowser * qtyBrowser, originalSubtotal: origBrowser * qtyBrowser, displayCost: formatCurrency(discBrowser * qtyBrowser)
+          });
+        }
+      });
+
+      // Process Add-ons
+      document.querySelectorAll('[data-addon-row]').forEach(row => {
+        const isAddedToLineItems = row.classList.contains('selected');
+        const originalCost = parseFloat(row.querySelector('[data-addon-cost]').value) || 0;
+        const discountedCost = originalCost * (1 - discountRate);
+
+        if (isAddedToLineItems) {
+          totalOriginal += originalCost;
+          totalDiscounted += discountedCost;
+        }
+
+        const label = row.getAttribute('data-addon-label') || 'Add-on Profile';
+        let displayCost = 'Empty';
+        
+        if (originalCost > 0) {
+          displayCost = formatCurrency(discountedCost);
+        }
+
+        if (isAddedToLineItems) {
+          lineItems.push({
+            label: `Add-On · ${label}`, note: '', qty: 1, subtotal: discountedCost, originalSubtotal: originalCost, displayCost: displayCost
+          });
+        }
+      });
+
+      // Render Table View
+      if (lineItems.length === 0) {
+        lineItemsContainer.innerHTML = `<div class="line-row" style="color:#8a9bb8; font-style:italic; justify-content:center;"><span style="grid-column: span 3; text-align:center;">No core licenses or active line items added</span></div>`;
+        subtotalDisplay.textContent = '$0';
+        discountDisplay.textContent = '-$0';
+        lineTotalDisplay.textContent = '$0';
+      } else {
+        let html = '';
+        lineItems.forEach(item => {
+          let noteHtml = item.note ? `<span class="item-note">${item.note}</span>` : '';
+          html += `
+            <div class="line-row">
+              <span class="item">
+                <span class="item-title"><i class="fas fa-tag"></i>${item.label}</span>
+                ${noteHtml}
+              </span>
+              <span>${item.qty}</span>
+              <span>${item.displayCost}</span>
+            </div>`;
+        });
+        lineItemsContainer.innerHTML = html;
+        
+        const subtotal = lineItems.reduce((acc, i) => acc + i.originalSubtotal, 0);
+        const discountedTotal = lineItems.reduce((acc, i) => acc + i.subtotal, 0);
+        subtotalDisplay.textContent = formatCurrency(subtotal);
+        discountDisplay.textContent = '-$' + Math.round(subtotal - discountedTotal).toLocaleString();
+        lineTotalDisplay.textContent = formatCurrency(discountedTotal);
+      }
+
+      const discountAmountTotal = totalOriginal - totalDiscounted;
+      totalPriceSpan.innerHTML = formatCurrency(totalDiscounted) + ' <small>USD</small>';
+      totalDiscountDisplay.innerHTML = `<i class="fas fa-percent"></i> Discount ${formatCurrency(discountAmountTotal)}`;
+      savingsBadge.innerHTML = `<i class="fas fa-piggy-bank"></i> Save ${formatCurrency(discountAmountTotal)}`;
+    }
+
+    function createNewTierDOM(prefix, defaultLabel, defaultDeviceCost, defaultBrowserCost) {
+      const div = document.createElement('div');
+      div.className = 'tier-row';
+      div.setAttribute('data-prefix', prefix);
+      div.innerHTML = `
+        <div class="tier-header-meta">
+          <span class="tier-label"><i class="fas fa-circle-check"></i> <input type="text" value="${defaultLabel}" class="tier-label-editable"></span>
+          <button class="btn-delete-tier" title="Delete Tier"><i class="fas fa-trash"></i></button>
+        </div>
+        <div class="tier-controls-group">
+          <div class="license-row-inputs">
+            <div class="cost-input-wrapper">
+              <span>$</span><input type="number" min="0" value="${defaultDeviceCost}" class="cost-editable" data-cost-input-device><small>device lic</small>
+            </div>
+            <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="0" data-qty-device></div>
+          </div>
+          <div class="license-row-inputs">
+            <div class="cost-input-wrapper">
+              <span>$</span><input type="number" min="0" value="${defaultBrowserCost}" class="cost-editable" data-cost-input-browser><small>browser lic</small>
+            </div>
+            <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="0" data-qty-browser></div>
+          </div>
+        </div>
+        <input type="text" placeholder="Add specific context or note..." class="tier-note-field" data-tier-note>
+      `;
+      
+      div.querySelector('.btn-delete-tier').addEventListener('click', () => { div.remove(); computeTotals(); });
+      div.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('input', computeTotals);
+      });
+      div.querySelector('.tier-label-editable').addEventListener('input', computeTotals);
+      div.querySelector('[data-tier-note]').addEventListener('input', computeTotals);
+      return div;
+    }
+
+    function attachListeners() {
+      document.getElementById('addHostedTierBtn').addEventListener('click', () => {
+        const container = document.getElementById('hostedTiersContainer');
+        container.appendChild(createNewTierDOM('Hosted', `Tier ${container.children.length + 1}`, 3000, 1500));
+        computeTotals();
+      });
+
+      document.getElementById('addOnPremTierBtn').addEventListener('click', () => {
+        const container = document.getElementById('onPremTiersContainer');
+        container.appendChild(createNewTierDOM('OnPrem', `Tier ${container.children.length + 1}`, 2750, 1250));
+        computeTotals();
+      });
+
+      document.querySelectorAll('.btn-delete-tier').forEach(btn => {
+        btn.addEventListener('click', () => { btn.closest('.tier-row').remove(); computeTotals(); });
+      });
+
+      document.querySelectorAll('input[data-qty-device], input[data-qty-browser], [data-cost-input-device], [data-cost-input-browser]').forEach(input => {
+        input.addEventListener('input', computeTotals);
+      });
+
+      document.querySelectorAll('.tier-label-editable, [data-tier-note]').forEach(input => {
+        input.addEventListener('input', computeTotals);
+      });
+
+      document.querySelectorAll('[data-addon-row]').forEach(row => {
+        const costInput = row.querySelector('[data-addon-cost]');
+        const toggleBtn = row.querySelector('[data-addon-btn]');
+        
+        toggleBtn.addEventListener('click', () => {
+          row.classList.toggle('selected');
+          toggleBtn.textContent = row.classList.contains('selected') ? '-' : '+';
+          computeTotals();
+        });
+
+        costInput.addEventListener('input', () => {
+          computeTotals();
+        });
+      });
+
+      discountInput.addEventListener('input', computeTotals);
+      annualToggle.addEventListener('click', function() {
+        isMonthly = false; this.classList.add('active'); monthlyToggle.classList.remove('active'); discountInput.disabled = false; computeTotals();
+      });
+      monthlyToggle.addEventListener('click', function() {
+        isMonthly = true; this.classList.add('active'); annualToggle.classList.remove('active'); discountInput.disabled = true; computeTotals();
+      });
+      document.getElementById('printBtn').addEventListener('click', () => window.print());
+    }
+
+    attachListeners();
+    computeTotals();
+  })();
+</script>
+</body>
+</html>
