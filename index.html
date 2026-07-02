@@ -113,26 +113,62 @@
     .customer-block input:focus { outline:2px solid var(--tg-teal); border-color:transparent; }
     .customer-block input:disabled { background:#f1f5f9; color:var(--tg-navy); opacity:0.8; cursor:default; border-color:#e2e8f0; }
 
-    .plans-grid {
-      display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.5rem;
-      margin-bottom:2rem;
+    /* Main Columns Toolbar Container */
+    .columns-actions-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn-add-column {
+      background: white; color: var(--tg-navy); border: 1px solid #cbd5e1;
+      padding: 0.5rem 1rem; border-radius: 10px; font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.15s;
+    }
+    .btn-add-column:hover { background: #f8fafc; border-color: var(--tg-teal); color: var(--tg-teal); }
+
+    /* Responsive Columns Container Layout */
+    .plans-flex-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
     }
     .plan-box {
+      flex: 1 1 300px;
       background:#ffffff; border-radius:20px; padding:1.2rem;
       border:1px solid #edf2f7;
       display:flex; flex-direction:column;
       box-shadow: 0 4px 10px rgba(44,50,96,0.01);
+      min-width: 280px;
+    }
+    .plan-header-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+      gap: 0.5rem;
     }
     .plan-title {
       font-size:1.05rem; font-weight:700; display:flex; align-items:center;
-      gap:0.5rem; margin-bottom:1.2rem; color: var(--tg-navy);
+      gap:0.5rem; color: var(--tg-navy); flex-grow: 1;
     }
     .plan-title i { color:var(--tg-teal); }
+    .plan-title-editable {
+      background: transparent; border: none; font-weight: 700; font-size: 1.05rem; color: var(--tg-navy); width: 100%; font-family: 'Inter', sans-serif;
+    }
+    .plan-title-editable:focus { outline: none; border-bottom: 2px dashed var(--tg-teal); }
+    
     .plan-title .badge {
       background:#e6fffa; border-radius:6px; padding:0.15rem 0.4rem;
       font-size:0.6rem; font-weight:700; text-transform:uppercase; color: var(--tg-teal);
-      border: 1px solid #b2f5ea;
+      border: 1px solid #b2f5ea; white-space: nowrap;
     }
+    .btn-delete-column {
+      background: transparent; border: none; color: #94a3b8;
+      cursor: pointer; font-size: 0.85rem; transition: color 0.15s; padding: 2px;
+    }
+    .btn-delete-column:hover { color: #ef4444; }
     
     .tiers-list-container {
       display: flex;
@@ -227,8 +263,12 @@
       align-items:center; gap: 0.5rem;
     }
     .addon-list li.selected { background: #f0fdf4; border-color: #bbf7d0; }
-    .addon-info { display: flex; align-items: center; gap: 0.5rem; }
+    .addon-info { display: flex; align-items: center; gap: 0.5rem; width: 100%; }
     .addon-info i { font-size:0.85rem; color: var(--tg-purple); width: 14px; text-align: center; }
+    .addon-label-editable {
+      background: transparent; border: none; font-weight: 600; font-size: 0.8rem; color: var(--tg-navy); width: 100%; font-family: 'Inter', sans-serif;
+    }
+    .addon-label-editable:focus { outline: none; border-bottom: 1px dashed var(--tg-teal); }
     
     .btn-addon-action {
       background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569;
@@ -328,7 +368,6 @@
     .btn-print:hover { background:#1f2444; transform:translateY(-1px); }
 
     @media (max-width:900px) {
-      .plans-grid { grid-template-columns:1fr; }
       .disclaimer-textarea { width: 100%; }
     }
     @media (max-width:650px) {
@@ -344,7 +383,7 @@
       body { background: white; color: #000; padding: 0; }
       .watermark-bg { display: flex !important; opacity: 0.05 !important; }
       .pricing-card { box-shadow: none; padding: 0; border: none; max-width: 100%; }
-      .discount-editor, .btn-print, .btn-add-tier, .btn-addon-action, .btn-delete-tier { display: none !important; }
+      .discount-editor, .btn-print, .btn-add-tier, .btn-addon-action, .btn-delete-tier, .columns-actions-bar, .btn-delete-column { display: none !important; }
       .customer-block, .tier-row, .plan-box, .line-item-block, .total-area { background: transparent !important; border: 1px solid #cbd5e1 !important; border-radius: 12px !important; }
       input, select, textarea { border: none !important; background: transparent !important; padding: 0 !important; outline: none !important; appearance: none !important; resize: none !important; }
       .cost-input-wrapper { border: none !important; background: transparent !important; padding: 0 !important; }
@@ -380,12 +419,24 @@
     <div class="field"><label><i class="fas fa-clock"></i> Validity</label><input type="text" id="validity" placeholder="e.g. 30 days" value="30 days"></div>
   </div>
 
-  <div class="plans-grid">
-    <!-- Hosted Plan -->
-    <div class="plan-box" id="hostedPlanBox">
-      <div class="plan-title"><i class="fas fa-cloud"></i> Hosted <span class="badge">Private cloud</span></div>
-      <div class="tiers-list-container" id="hostedTiersContainer">
-        <div class="tier-row" data-prefix="Hosted">
+  <div class="columns-actions-bar">
+    <button class="btn-add-column" id="addCorePlanColumnBtn"><i class="fas fa-plus-circle"></i> Add License Plan Column</button>
+    <button class="btn-add-column" id="getAddonColumnBtn"><i class="fas fa-puzzle-piece"></i> Add Add-Ons Column</button>
+  </div>
+
+  <div class="plans-flex-container" id="plansFlexContainer">
+    
+    <div class="plan-box" data-column-type="plan">
+      <div class="plan-header-wrapper">
+        <div class="plan-title">
+          <i class="fas fa-cloud"></i> 
+          <input type="text" value="Hosted" class="plan-title-editable">
+          <span class="badge">Private cloud</span>
+        </div>
+        <button class="btn-delete-column" title="Delete Column"><i class="fas fa-trash-can"></i></button>
+      </div>
+      <div class="tiers-list-container">
+        <div class="tier-row">
           <div class="tier-header-meta">
             <span class="tier-label"><i class="fas fa-circle-check"></i> <input type="text" value="Tier 1" class="tier-label-editable"></span>
             <button class="btn-delete-tier" title="Delete Tier"><i class="fas fa-trash"></i></button>
@@ -393,28 +444,34 @@
           <div class="tier-controls-group">
             <div class="license-row-inputs">
               <div class="cost-input-wrapper">
-                <span>$</span><input type="number" min="0" value="3000" class="cost-editable" data-cost-input-device><small>device lic</small>
+                <span>$</span><input type="number" min="0" value="0" class="cost-editable" data-cost-input-device><small>device lic</small>
               </div>
-              <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="0" data-qty-device></div>
+              <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="1" data-qty-device></div>
             </div>
             <div class="license-row-inputs">
               <div class="cost-input-wrapper">
-                <span>$</span><input type="number" min="0" value="1500" class="cost-editable" data-cost-input-browser><small>browser lic</small>
+                <span>$</span><input type="number" min="0" value="0" class="cost-editable" data-cost-input-browser><small>browser lic</small>
               </div>
-              <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="0" data-qty-browser></div>
+              <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="1" data-qty-browser></div>
             </div>
           </div>
           <input type="text" placeholder="Add specific context or note..." class="tier-note-field" data-tier-note>
         </div>
       </div>
-      <button class="btn-add-tier" id="addHostedTierBtn"><i class="fas fa-plus"></i> Add Custom Tier</button>
+      <button class="btn-add-tier"><i class="fas fa-plus"></i> Add Custom Tier</button>
     </div>
 
-    <!-- OnPrem Plan -->
-    <div class="plan-box" id="onPremPlanBox">
-      <div class="plan-title"><i class="fas fa-server"></i> On‑Premise <span class="badge">self‑hosted</span></div>
-      <div class="tiers-list-container" id="onPremTiersContainer">
-        <div class="tier-row" data-prefix="OnPrem">
+    <div class="plan-box" data-column-type="plan">
+      <div class="plan-header-wrapper">
+        <div class="plan-title">
+          <i class="fas fa-server"></i> 
+          <input type="text" value="On‑Premise" class="plan-title-editable">
+          <span class="badge">self‑hosted</span>
+        </div>
+        <button class="btn-delete-column" title="Delete Column"><i class="fas fa-trash-can"></i></button>
+      </div>
+      <div class="tiers-list-container">
+        <div class="tier-row">
           <div class="tier-header-meta">
             <span class="tier-label"><i class="fas fa-circle-check"></i> <input type="text" value="Tier 1" class="tier-label-editable"></span>
             <button class="btn-delete-tier" title="Delete Tier"><i class="fas fa-trash"></i></button>
@@ -422,64 +479,58 @@
           <div class="tier-controls-group">
             <div class="license-row-inputs">
               <div class="cost-input-wrapper">
-                <span>$</span><input type="number" min="0" value="2750" class="cost-editable" data-cost-input-device><small>device lic</small>
+                <span>$</span><input type="number" min="0" value="0" class="cost-editable" data-cost-input-device><small>device lic</small>
               </div>
-              <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="0" data-qty-device></div>
+              <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="1" data-qty-device></div>
             </div>
             <div class="license-row-inputs">
               <div class="cost-input-wrapper">
-                <span>$</span><input type="number" min="0" value="1250" class="cost-editable" data-cost-input-browser><small>browser lic</small>
+                <span>$</span><input type="number" min="0" value="0" class="cost-editable" data-cost-input-browser><small>browser lic</small>
               </div>
-              <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="0" data-qty-browser></div>
+              <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="1" data-qty-browser></div>
             </div>
           </div>
           <input type="text" placeholder="Add specific context or note..." class="tier-note-field" data-tier-note>
         </div>
       </div>
-      <button class="btn-add-tier" id="addOnPremTierBtn"><i class="fas fa-plus"></i> Add Custom Tier</button>
+      <button class="btn-add-tier"><i class="fas fa-plus"></i> Add Custom Tier</button>
     </div>
 
-    <!-- Add-Ons -->
-    <div class="plan-box">
-      <div class="plan-title"><i class="fas fa-puzzle-piece"></i> Add‑Ons <span class="badge">Optional</span></div>
-      <ul class="addon-list" id="addonList">
-        <li data-addon-row data-addon-label="CoTester + AI">
-          <button class="btn-addon-action" data-addon-btn>+</button>
-          <span class="addon-info"><i class="fas fa-robot"></i> CoTester + AI</span>
+    <div class="plan-box" data-column-type="addon">
+      <div class="plan-header-wrapper">
+        <div class="plan-title">
+          <i class="fas fa-puzzle-piece"></i> 
+          <input type="text" value="Add‑Ons" class="plan-title-editable">
+          <span class="badge">Optional</span>
+        </div>
+        <button class="btn-delete-column" title="Delete Column"><i class="fas fa-trash-can"></i></button>
+      </div>
+      <ul class="addon-list">
+        <li data-addon-row>
+          <button class="btn-addon-action">+</button>
+          <span class="addon-info"><i class="fas fa-robot"></i> <input type="text" value="CoTester + AI" class="addon-label-editable"></span>
           <div class="addon-cost-wrapper">
             <span>$</span><input type="number" min="0" value="0" class="addon-cost-input" data-addon-cost placeholder="0">
           </div>
         </li>
-        <li data-addon-row data-addon-label="Scriptless R&P">
-          <button class="btn-addon-action" data-addon-btn>+</button>
-          <span class="addon-info"><i class="fas fa-play"></i> Scriptless R&P</span>
+        <li data-addon-row>
+          <button class="btn-addon-action">+</button>
+          <span class="addon-info"><i class="fas fa-play"></i> <input type="text" value="Scriptless R&P" class="addon-label-editable"></span>
           <div class="addon-cost-wrapper">
             <span>$</span><input type="number" min="0" value="0" class="addon-cost-input" data-addon-cost placeholder="0">
           </div>
         </li>
-        <li data-addon-row data-addon-label="Visual + API">
-          <button class="btn-addon-action" data-addon-btn>+</button>
-          <span class="addon-info"><i class="fas fa-eye"></i> Visual + API</span>
-          <div class="addon-cost-wrapper">
-            <span>$</span><input type="number" min="0" value="0" class="addon-cost-input" data-addon-cost placeholder="0">
-          </div>
-        </li>
-        <li data-addon-row data-addon-label="Load Testing">
-          <button class="btn-addon-action" data-addon-btn>+</button>
-          <span class="addon-info"><i class="fas fa-chart-line"></i> Load Testing</span>
-          <div class="addon-cost-wrapper">
-            <span>$</span><input type="number" min="0" value="0" class="addon-cost-input" data-addon-cost placeholder="0">
-          </div>
-        </li>
-        <li data-addon-row data-addon-label="Accessibility">
-          <button class="btn-addon-action" data-addon-btn>+</button>
-          <span class="addon-info"><i class="fas fa-universal-access"></i> Accessibility</span>
+        <li data-addon-row>
+          <button class="btn-addon-action">+</button>
+          <span class="addon-info"><i class="fas fa-eye"></i> <input type="text" value="Visual + API" class="addon-label-editable"></span>
           <div class="addon-cost-wrapper">
             <span>$</span><input type="number" min="0" value="0" class="addon-cost-input" data-addon-cost placeholder="0">
           </div>
         </li>
       </ul>
+      <button class="btn-add-tier" style="margin-top: 1rem;"><i class="fas fa-plus"></i> Add Custom Add-On Row</button>
     </div>
+
   </div>
 
   <div class="line-item-block" id="lineItemBlock">
@@ -537,6 +588,7 @@ This pricing estimate contains proprietary information intended solely for the r
     const discountDisplay = document.getElementById('discountDisplay');
     const lineTotalDisplay = document.getElementById('lineTotalDisplay');
     const lineItemsContainer = document.getElementById('lineItemsContainer');
+    const plansFlexContainer = document.getElementById('plansFlexContainer');
 
     let isMonthly = false;
 
@@ -555,61 +607,70 @@ This pricing estimate contains proprietary information intended solely for the r
       let totalDiscounted = 0, totalOriginal = 0;
       const lineItems = [];
 
-      // Process Tiers
-      document.querySelectorAll('.tier-row').forEach(row => {
-        const prefix = row.getAttribute('data-prefix') || '';
-        const labelInput = row.querySelector('.tier-label-editable');
-        const tierName = labelInput ? labelInput.value : 'Tier option';
-        const noteText = (row.querySelector('[data-tier-note]')?.value || '').trim();
+      // Scan all existing columns inside the layout
+      document.querySelectorAll('#plansFlexContainer .plan-box').forEach(column => {
+        const columnTitleInput = column.querySelector('.plan-title-editable');
+        const columnPrefix = columnTitleInput ? columnTitleInput.value.trim() : 'Plan';
+        const type = column.getAttribute('data-column-type');
 
-        // Device licenses
-        const qtyDevice = parseInt(row.querySelector('[data-qty-device]').value, 10) || 0;
-        if (qtyDevice > 0) {
-          const origDevice = parseFloat(row.querySelector('[data-cost-input-device]').value) || 0;
-          const discDevice = origDevice * (1 - discountRate);
-          totalOriginal += origDevice * qtyDevice;
-          totalDiscounted += discDevice * qtyDevice;
-          lineItems.push({
-            label: `${prefix} · ${tierName} (Device License)`,
-            note: noteText, qty: qtyDevice, subtotal: discDevice * qtyDevice, originalSubtotal: origDevice * qtyDevice, displayCost: formatCurrency(discDevice * qtyDevice)
+        if (type === 'plan') {
+          // Process Tiers inside this plan column
+          column.querySelectorAll('.tier-row').forEach(row => {
+            const labelInput = row.querySelector('.tier-label-editable');
+            const tierName = labelInput ? labelInput.value : 'Tier option';
+            const noteText = (row.querySelector('[data-tier-note]')?.value || '').trim();
+
+            // Device licenses
+            const qtyDevice = parseInt(row.querySelector('[data-qty-device]').value, 10) || 0;
+            if (qtyDevice > 0) {
+              const origDevice = parseFloat(row.querySelector('[data-cost-input-device]').value) || 0;
+              const discDevice = origDevice * (1 - discountRate);
+              totalOriginal += origDevice * qtyDevice;
+              totalDiscounted += discDevice * qtyDevice;
+              lineItems.push({
+                label: `${columnPrefix} · ${tierName} (Device License)`,
+                note: noteText, qty: qtyDevice, subtotal: discDevice * qtyDevice, originalSubtotal: origDevice * qtyDevice, displayCost: formatCurrency(discDevice * qtyDevice)
+              });
+            }
+
+            // Browser licenses
+            const qtyBrowser = parseInt(row.querySelector('[data-qty-browser]').value, 10) || 0;
+            if (qtyBrowser > 0) {
+              const origBrowser = parseFloat(row.querySelector('[data-cost-input-browser]').value) || 0;
+              const discBrowser = origBrowser * (1 - discountRate);
+              totalOriginal += origBrowser * qtyBrowser;
+              totalDiscounted += discBrowser * qtyBrowser;
+              lineItems.push({
+                label: `${columnPrefix} · ${tierName} (Browser License)`,
+                note: noteText, qty: qtyBrowser, subtotal: discBrowser * qtyBrowser, originalSubtotal: origBrowser * qtyBrowser, displayCost: formatCurrency(discBrowser * qtyBrowser)
+              });
+            }
           });
-        }
+        } else if (type === 'addon') {
+          // Process Add-ons inside this add-on column
+          column.querySelectorAll('[data-addon-row]').forEach(row => {
+            const isAddedToLineItems = row.classList.contains('selected');
+            const originalCost = parseFloat(row.querySelector('[data-addon-cost]').value) || 0;
+            const discountedCost = originalCost * (1 - discountRate);
 
-        // Browser licenses
-        const qtyBrowser = parseInt(row.querySelector('[data-qty-browser]').value, 10) || 0;
-        if (qtyBrowser > 0) {
-          const origBrowser = parseFloat(row.querySelector('[data-cost-input-browser]').value) || 0;
-          const discBrowser = origBrowser * (1 - discountRate);
-          totalOriginal += origBrowser * qtyBrowser;
-          totalDiscounted += discBrowser * qtyBrowser;
-          lineItems.push({
-            label: `${prefix} · ${tierName} (Browser License)`,
-            note: noteText, qty: qtyBrowser, subtotal: discBrowser * qtyBrowser, originalSubtotal: origBrowser * qtyBrowser, displayCost: formatCurrency(discBrowser * qtyBrowser)
-          });
-        }
-      });
+            if (isAddedToLineItems) {
+              totalOriginal += originalCost;
+              totalDiscounted += discountedCost;
+            }
 
-      // Process Add-ons
-      document.querySelectorAll('[data-addon-row]').forEach(row => {
-        const isAddedToLineItems = row.classList.contains('selected');
-        const originalCost = parseFloat(row.querySelector('[data-addon-cost]').value) || 0;
-        const discountedCost = originalCost * (1 - discountRate);
+            const labelInput = row.querySelector('.addon-label-editable');
+            const label = labelInput ? labelInput.value.trim() : 'Add-on Option';
+            let displayCost = 'Empty';
+            
+            if (originalCost > 0) {
+              displayCost = formatCurrency(discountedCost);
+            }
 
-        if (isAddedToLineItems) {
-          totalOriginal += originalCost;
-          totalDiscounted += discountedCost;
-        }
-
-        const label = row.getAttribute('data-addon-label') || 'Add-on Profile';
-        let displayCost = 'Empty';
-        
-        if (originalCost > 0) {
-          displayCost = formatCurrency(discountedCost);
-        }
-
-        if (isAddedToLineItems) {
-          lineItems.push({
-            label: `Add-On · ${label}`, note: '', qty: 1, subtotal: discountedCost, originalSubtotal: originalCost, displayCost: displayCost
+            if (isAddedToLineItems) {
+              lineItems.push({
+                label: `${columnPrefix} · ${label}`, note: '', qty: 1, subtotal: discountedCost, originalSubtotal: originalCost, displayCost: displayCost
+              });
+            }
           });
         }
       });
@@ -649,10 +710,9 @@ This pricing estimate contains proprietary information intended solely for the r
       savingsBadge.innerHTML = `<i class="fas fa-piggy-bank"></i> Save ${formatCurrency(discountAmountTotal)}`;
     }
 
-    function createNewTierDOM(prefix, defaultLabel, defaultDeviceCost, defaultBrowserCost) {
+    function createNewTierDOM(defaultLabel, defaultDeviceCost, defaultBrowserCost) {
       const div = document.createElement('div');
       div.className = 'tier-row';
-      div.setAttribute('data-prefix', prefix);
       div.innerHTML = `
         <div class="tier-header-meta">
           <span class="tier-label"><i class="fas fa-circle-check"></i> <input type="text" value="${defaultLabel}" class="tier-label-editable"></span>
@@ -663,67 +723,137 @@ This pricing estimate contains proprietary information intended solely for the r
             <div class="cost-input-wrapper">
               <span>$</span><input type="number" min="0" value="${defaultDeviceCost}" class="cost-editable" data-cost-input-device><small>device lic</small>
             </div>
-            <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="0" data-qty-device></div>
+            <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="1" data-qty-device></div>
           </div>
           <div class="license-row-inputs">
             <div class="cost-input-wrapper">
               <span>$</span><input type="number" min="0" value="${defaultBrowserCost}" class="cost-editable" data-cost-input-browser><small>browser lic</small>
             </div>
-            <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="0" data-qty-browser></div>
+            <div class="qty-control"><input type="number" min="0" value="0" step="1" placeholder="1" data-qty-browser></div>
           </div>
         </div>
         <input type="text" placeholder="Add specific context or note..." class="tier-note-field" data-tier-note>
       `;
       
-      div.querySelector('.btn-delete-tier').addEventListener('click', () => { div.remove(); computeTotals(); });
-      div.querySelectorAll('input[type="number"]').forEach(input => {
-        input.addEventListener('input', computeTotals);
-      });
-      div.querySelector('.tier-label-editable').addEventListener('input', computeTotals);
-      div.querySelector('[data-tier-note]').addEventListener('input', computeTotals);
+      bindTierEvents(div);
       return div;
     }
 
-    function attachListeners() {
-      document.getElementById('addHostedTierBtn').addEventListener('click', () => {
-        const container = document.getElementById('hostedTiersContainer');
-        container.appendChild(createNewTierDOM('Hosted', `Tier ${container.children.length + 1}`, 3000, 1500));
+    function createNewAddonRowDOM(defaultLabel) {
+      const li = document.createElement('li');
+      li.setAttribute('data-addon-row', '');
+      li.innerHTML = `
+        <button class="btn-addon-action">+</button>
+        <span class="addon-info"><i class="fas fa-puzzle-piece"></i> <input type="text" value="${defaultLabel}" class="addon-label-editable"></span>
+        <div class="addon-cost-wrapper">
+          <span>$</span><input type="number" min="0" value="0" class="addon-cost-input" data-addon-cost placeholder="0">
+        </div>
+      `;
+      bindAddonRowEvents(li);
+      return li;
+    }
+
+    function bindTierEvents(tierRow) {
+      tierRow.querySelector('.btn-delete-tier').addEventListener('click', () => { tierRow.remove(); computeTotals(); });
+      tierRow.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', computeTotals);
+      });
+    }
+
+    function bindAddonRowEvents(row) {
+      const costInput = row.querySelector('[data-addon-cost]');
+      const toggleBtn = row.querySelector('[data-addon-btn] , .btn-addon-action');
+      const labelInput = row.querySelector('.addon-label-editable');
+      
+      toggleBtn.addEventListener('click', () => {
+        row.classList.toggle('selected');
+        toggleBtn.textContent = row.classList.contains('selected') ? '-' : '+';
+        computeTotals();
+      });
+      costInput.addEventListener('input', computeTotals);
+      if(labelInput) {
+        labelInput.addEventListener('input', computeTotals);
+      }
+    }
+
+    function bindColumnEvents(columnBox) {
+      columnBox.querySelector('.btn-delete-column').addEventListener('click', () => {
+        columnBox.remove();
+        computeTotals();
+      });
+      
+      columnBox.querySelector('.plan-title-editable').addEventListener('input', computeTotals);
+
+      const addBtn = columnBox.querySelector('.btn-add-tier');
+      if (addBtn) {
+        addBtn.addEventListener('click', () => {
+          const type = columnBox.getAttribute('data-column-type');
+          if (type === 'plan') {
+            const container = columnBox.querySelector('.tiers-list-container');
+            container.appendChild(createNewTierDOM(`Tier ${container.children.length + 1}`, 0, 0));
+          } else if (type === 'addon') {
+            const container = columnBox.querySelector('.addon-list');
+            container.appendChild(createNewAddonRowDOM(`Custom Add-on option`));
+          }
+          computeTotals();
+        });
+      }
+
+      columnBox.querySelectorAll('.tier-row').forEach(bindTierEvents);
+      columnBox.querySelectorAll('[data-addon-row]').forEach(bindAddonRowEvents);
+    }
+
+    function setupColumnStructureListeners() {
+      document.getElementById('addCorePlanColumnBtn').addEventListener('click', () => {
+        const div = document.createElement('div');
+        div.className = 'plan-box';
+        div.setAttribute('data-column-type', 'plan');
+        div.innerHTML = `
+          <div class="plan-header-wrapper">
+            <div class="plan-title">
+              <i class="fas fa-layer-group"></i> 
+              <input type="text" value="Custom Plan Layout" class="plan-title-editable">
+              <span class="badge">Tiered</span>
+            </div>
+            <button class="btn-delete-column" title="Delete Column"><i class="fas fa-trash-can"></i></button>
+          </div>
+          <div class="tiers-list-container"></div>
+          <button class="btn-add-tier"><i class="fas fa-plus"></i> Add Custom Tier</button>
+        `;
+        const container = div.querySelector('.tiers-list-container');
+        container.appendChild(createNewTierDOM('Tier 1', 2000, 1000));
+        plansFlexContainer.appendChild(div);
+        bindColumnEvents(div);
         computeTotals();
       });
 
-      document.getElementById('addOnPremTierBtn').addEventListener('click', () => {
-        const container = document.getElementById('onPremTiersContainer');
-        container.appendChild(createNewTierDOM('OnPrem', `Tier ${container.children.length + 1}`, 2750, 1250));
+      document.getElementById('getAddonColumnBtn').addEventListener('click', () => {
+        const div = document.createElement('div');
+        div.className = 'plan-box';
+        div.setAttribute('data-column-type', 'addon');
+        div.innerHTML = `
+          <div class="plan-header-wrapper">
+            <div class="plan-title">
+              <i class="fas fa-cubes"></i> 
+              <input type="text" value="Extra Modules" class="plan-title-editable">
+              <span class="badge">A-la-carte</span>
+            </div>
+            <button class="btn-delete-column" title="Delete Column"><i class="fas fa-trash-can"></i></button>
+          </div>
+          <ul class="addon-list"></ul>
+          <button class="btn-add-tier" style="margin-top: 1rem;"><i class="fas fa-plus"></i> Add Custom Add-On Row</button>
+        `;
+        const container = div.querySelector('.addon-list');
+        container.appendChild(createNewAddonRowDOM('Custom Module Feature'));
+        plansFlexContainer.appendChild(div);
+        bindColumnEvents(div);
         computeTotals();
       });
 
-      document.querySelectorAll('.btn-delete-tier').forEach(btn => {
-        btn.addEventListener('click', () => { btn.closest('.tier-row').remove(); computeTotals(); });
-      });
+      document.querySelectorAll('#plansFlexContainer .plan-box').forEach(bindColumnEvents);
+    }
 
-      document.querySelectorAll('input[data-qty-device], input[data-qty-browser], [data-cost-input-device], [data-cost-input-browser]').forEach(input => {
-        input.addEventListener('input', computeTotals);
-      });
-
-      document.querySelectorAll('.tier-label-editable, [data-tier-note]').forEach(input => {
-        input.addEventListener('input', computeTotals);
-      });
-
-      document.querySelectorAll('[data-addon-row]').forEach(row => {
-        const costInput = row.querySelector('[data-addon-cost]');
-        const toggleBtn = row.querySelector('[data-addon-btn]');
-        
-        toggleBtn.addEventListener('click', () => {
-          row.classList.toggle('selected');
-          toggleBtn.textContent = row.classList.contains('selected') ? '-' : '+';
-          computeTotals();
-        });
-
-        costInput.addEventListener('input', () => {
-          computeTotals();
-        });
-      });
-
+    function attachBaseListeners() {
       discountInput.addEventListener('input', computeTotals);
       annualToggle.addEventListener('click', function() {
         isMonthly = false; this.classList.add('active'); monthlyToggle.classList.remove('active'); discountInput.disabled = false; computeTotals();
@@ -734,7 +864,8 @@ This pricing estimate contains proprietary information intended solely for the r
       document.getElementById('printBtn').addEventListener('click', () => window.print());
     }
 
-    attachListeners();
+    setupColumnStructureListeners();
+    attachBaseListeners();
     computeTotals();
   })();
 </script>
